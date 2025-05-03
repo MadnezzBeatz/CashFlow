@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Редактирование записи{% else %}Создание записи{% endif %}</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> <!-- Подключение CSS, если нужно -->
+</head>
+<body>
+    <h1>{% if form.instance.pk %}Редактирование записи{% else %}Создание записи{% endif %}</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div>
+            <label for="id_type">Тип:</label>
+            {{ form.type }}
+            {{ form.type.errors }}
+        </div>
+
+        <div>
+            <label for="id_category">Категория:</label>
+            <select id="id_category" name="category" onchange="this.form.submit();">
+                <option value="">Выберите категорию</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}"{% if form.instance.category.id == category.id %} selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            {{ form.category.errors }}
+        </div>
+
+        <div>
+            <label for="id_subcategory">Подкатегория:</label>
+            <select id="id_subcategory" name="subcategory">
+                <option value="">Выберите подкатегорию</option>
+                {% for subcategory in subcategories %}
+                    <option value="{{ subcategory.id }}"{% if form.instance.subcategory.id == subcategory.id %} selected{% endif %}>{{ subcategory.name }}</option>
+                {% endfor %}
+            </select>
+            {{ form.subcategory.errors }}
+        </div>
+
+        <div>
+            <label for="id_date">Дата:</label>
+            {{ form.date }}
+            {{ form.date.errors }}
+        </div>
+
+        <div>
+            <label for="id_status">Статус:</label>
+            {{ form.status }}
+            {{ form.status.errors }}
+        </div>
+
+        <button type="submit">{% if form.instance.pk %}Сохранить{% else %}Создать{% endif %}</button>
+    </form>
+
+    <a href="{% url 'index' %}">Назад</a> <!-- Ссылка на главную страницу -->
+</body>
+</html>

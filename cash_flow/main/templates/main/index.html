@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная страница</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Записи о ДДС</h1>
+        <form method="get" action="{% url 'index' %}" class="mb-4 p-4 border rounded bg-light">
+            <div class="form-group">{{ form.date_from.label_tag }} {{ form.date_from }}<br></div>
+            <div class="form-group">{{ form.date_to.label_tag }} {{ form.date_to }}<br></div>
+            <div class="form-group">{{ form.status.label_tag }} {{ form.status }}<br></div>
+            <div class="form-group">{{ form.record_type.label_tag }} {{ form.record_type }}<br></div>
+            <div class="form-group">
+                <label for="category">Категория:</label>
+                <select id="category" name="category">
+                    <option value="">Выберите категорию</option>
+                </select><br>
+            </div>
+            <div class="form-group">
+                <label for="subcategory">Подкатегория:</label>
+                <select id="subcategory" name="subcategory">
+                    <option value="">Выберите подкатегорию</option>
+                </select><br>
+            </div>
+            <button type="submit" class="btn btn-primary">Фильтровать</button>
+        </form>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>Дата</th>
+                    <th>Тип</th>
+                    <th>Статус</th>
+                    <th>Категория</th>
+                    <th>Подкатегория</th>
+                    <th>Комментарий</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.date|date:"d.m.Y" }}</td>
+                    <td>{{ record.type }}</td>
+                    <td>{{ record.status }}</td>
+                    <td>{{ record.category }}</td>
+                    <td>{{ record.subcategory }}</td>
+                    <td id="notice">{{ record.notice }}</td>
+                    <td>{{ record.cost }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7"  class="text-center">Нет записей</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#id_record_type').change(function() {
+                var typeId = $(this).val();
+                $.ajax({
+                    url: '{% url "load_categories" %}',
+                    data: {
+                        'type_id': typeId
+                    },
+                    success: function(data) {
+                        var categorySelect = $('#category');
+                        categorySelect.empty();
+                        categorySelect.append('<option value="">Выберите категорию</option>');
+                        $.each(data, function(index, category) {
+                            categorySelect.append('<option value="' + category.id + '">' + category.name + '</option>');
+                        });
+                    }
+                });
+            });
+
+            $('#category').change(function() {
+                var categoryId = $(this).val();
+                $.ajax({
+                    url: '{% url "load_subcategories" %}',
+                    data: {
+                        'category_id': categoryId
+                    },
+                    success: function(data) {
+                        var subcategorySelect = $('#subcategory');
+                        subcategorySelect.empty();
+                        subcategorySelect.append('<option value="">Выберите подкатегорию</option>');
+                        $.each(data, function(index, subcategory) {
+                            subcategorySelect.append('<option value="' + subcategory.id + '">' + subcategory.name + '</option>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
